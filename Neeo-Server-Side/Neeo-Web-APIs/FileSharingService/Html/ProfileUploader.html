@@ -1,0 +1,74 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Try</title>
+</head>
+<body>
+    <div id="app">
+        <h1>{{isVueActive}}</h1>
+        <input type="file" id="userProfileInput" title="Choose a Profile Image to upload" accept="image/*, image/heic, image/heif" v-on:change="uploadImage">
+        <button v-on:click="saveProfile()">Upload</button>
+    </div>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.10/vue.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.js"></script>
+    <script>
+        var root = new Vue
+            ({
+                el: '#app',
+                data:
+                {
+                    userProfile: 'Initial',
+                    isVueActive:'AL-SHAFQAT'
+
+                },
+                created: function () {
+
+                },
+                methods:
+                {
+
+                     uploadImage: function (event) {
+
+                        console.log(event);
+
+                        var image = new Image;
+                        var reader = new FileReader;
+
+                        reader.onload = (e) => {
+                             this.userProfile = e.target.result;
+
+                        }
+                        reader.readAsDataURL(event.target.files[0]);
+                        console.log(event.target.files[0]);
+                        //this.saveProfile();
+                    },
+                     splitImage(image)
+                            {
+                             var splits = image.split('base64,');
+                             return splits[1];
+                            },
+                    saveProfile() {
+
+                        var vm = this;
+                        axios.post('/Service/NeeoFileSharingService.svc/UpdateProfileInformation',
+                            {
+                                userID: "923116024000",
+                                name:"M Uzair",
+                                fileData: vm.splitImage(vm.userProfile)
+                            })
+                            .then(function (res) {
+
+                            })
+                            .then(function (error) {
+                                console.log(error);
+                            })
+                    }
+
+                },
+            });
+    </script>
+</body>
+</html>
