@@ -52,7 +52,7 @@ namespace LibNeeo.NearByMe.Model
                           return pacakages;
           }
 
-        public async Task<int> AddUserPromotionPackage(int packageId, int promotionId, short numberOfDays, string country)
+        public async Task<long> AddUserPromotionPackage(int packageId, int promotionId, short numberOfDays, string country)
         {
             
 
@@ -60,17 +60,17 @@ namespace LibNeeo.NearByMe.Model
             return await System.Threading.Tasks.Task.Run(() => _dbManager.AddUserPromotionPackage(packageId, promotionId, numberOfDays, country));
         }
 
-        public async Task<bool> DeleteNearByMeUserPromotionPackage(int userPromotionsPackageID)
+        public async Task<int> DeleteNearByMeUserPromotionPackage(int userPromotionsPackageID)
         {
             return await System.Threading.Tasks.Task.Run(() => _dbManager.DeleteNearByMeUserPromotionPackage(userPromotionsPackageID));
         }
 
-        public async Task<double> GetUserBalance(string username)
+        public async Task<decimal> GetUserBalance(string username)
         {
             return await System.Threading.Tasks.Task.Run(() => _dbManager.GetUserBalance(username));
         }
 
-        public async Task<int> UpdateUserPromotionPackage(int userPromotionsPackageID,  string countryIds)
+        public async Task<long> UpdateUserPromotionPackage(int userPromotionsPackageID,  string countryIds)
         {
 
             return await System.Threading.Tasks.Task.Run(() => _dbManager.UpdateUserPromotionPackage(userPromotionsPackageID, countryIds));

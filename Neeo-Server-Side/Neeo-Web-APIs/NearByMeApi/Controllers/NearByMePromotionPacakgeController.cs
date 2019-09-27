@@ -19,7 +19,6 @@ namespace PowerfulPal.Neeo.NearByMeApi.Controllers
      
         NearByMePackageManager nearByMePromotionPacakge = new NearByMePackageManager();
 
-
         [HttpGet]
         [Route("GetAllPromotionPackages")]
         public async Task<HttpResponseMessage> GetNearByMePromotionPacakages()
@@ -34,7 +33,7 @@ namespace PowerfulPal.Neeo.NearByMeApi.Controllers
                 }
 
                 List<GetNearByMePromotionPackages> pacakages = await System.Threading.Tasks.Task.Run(() => nearByMePromotionPacakge.GetNearByMePromotionPackages());
-                return Request.CreateResponse(HttpStatusCode.OK, pacakages);
+                return Request.CreateResponse(HttpStatusCode.OK, new { returnValue = pacakages } );
             }
             catch (ApplicationException applicationException)
             {
@@ -97,8 +96,8 @@ namespace PowerfulPal.Neeo.NearByMeApi.Controllers
                     return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ModelState);
                 }
 
-                double balance = await System.Threading.Tasks.Task.Run(() => nearByMePromotionPacakge.GetUserBalance(username));
-                return Request.CreateResponse(HttpStatusCode.OK, balance);
+                decimal balance = await System.Threading.Tasks.Task.Run(() => nearByMePromotionPacakge.GetUserBalance(username));
+                return Request.CreateResponse(HttpStatusCode.OK, new { returnValue = balance } );
             }
             catch (ApplicationException applicationException)
             {
@@ -162,8 +161,8 @@ namespace PowerfulPal.Neeo.NearByMeApi.Controllers
                 }
 
                
-                List<UserPromotionPackagesDTO> package = await System.Threading.Tasks.Task.Run(() => nearByMePromotionPacakge.GetUserPromotionPackages(username));
-                return Request.CreateResponse(HttpStatusCode.OK, package);
+                List<UserPromotionPackagesDTO> packages = await System.Threading.Tasks.Task.Run(() => nearByMePromotionPacakge.GetUserPromotionPackages(username));
+                return Request.CreateResponse(HttpStatusCode.OK, new { returnValue = packages } );
             }
             catch (ApplicationException applicationException)
             {
@@ -229,7 +228,7 @@ namespace PowerfulPal.Neeo.NearByMeApi.Controllers
                 if(promotion.useUserBalanceForPayment == true)
                 {
                     int ret = -5;
-                    return Request.CreateResponse(HttpStatusCode.OK, ret);
+                    return Request.CreateResponse(HttpStatusCode.OK, new { returnValue = ret } );
                 }
 
                 #region SPLIT 
@@ -240,9 +239,19 @@ namespace PowerfulPal.Neeo.NearByMeApi.Controllers
                 //}
                 #endregion
 
-                int operationCompleted = await System.Threading.Tasks.Task.Run(() => nearByMePromotionPacakge.AddUserPromotionPackage(promotion.packageId, promotion.promotionId, promotion.numberOfDays, promotion.countryIds));
-                 return Request.CreateResponse(HttpStatusCode.OK , operationCompleted);
- 
+                long operationCompleted = await System.Threading.Tasks.Task.Run(() => nearByMePromotionPacakge.AddUserPromotionPackage(promotion.packageId, promotion.promotionId, promotion.numberOfDays, promotion.countryIds));
+
+                if (operationCompleted < 0)
+                {
+                    return Request.CreateResponse(HttpStatusCode.OK, new { returnValue = operationCompleted } );
+                }
+                else
+                {
+
+                    List<UserPromotionPackagesDTO> packages = await System.Threading.Tasks.Task.Run(() => nearByMePromotionPacakge.GetUserPromotionPackages(operationCompleted.ToString()));
+
+                    return Request.CreateResponse(HttpStatusCode.OK, new { returnValue = packages } );
+                }
             }
             catch (ApplicationException applicationException)
             {
@@ -294,21 +303,31 @@ namespace PowerfulPal.Neeo.NearByMeApi.Controllers
 
         [HttpPut]
         [Route("UpdateUserPromotionPackage")]
-        public async Task<HttpResponseMessage> UpdateUserPromotionPackage([FromBody] UserPromotionsPackages packages)
+        public async Task<HttpResponseMessage> UpdateUserPromotionPackage([FromBody] UserPromotionsPackages package)
         {
             try
             {
 
-                LogRequest(packages);
+                LogRequest(package);
                 if (!ModelState.IsValid)
                 {
                     return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ModelState);
                 }
 
-           
 
-                int operationCompleted = await System.Threading.Tasks.Task.Run(() => nearByMePromotionPacakge.UpdateUserPromotionPackage(packages.userPromotionsPackageID, packages.countryIds));
-                return Request.CreateResponse(HttpStatusCode.OK, operationCompleted);
+
+                long operationCompleted = await System.Threading.Tasks.Task.Run(() => nearByMePromotionPacakge.UpdateUserPromotionPackage(package.userPromotionsPackageID, package.countryIds));
+                if (operationCompleted < 0)
+                {
+                    return Request.CreateResponse(HttpStatusCode.OK, new { returnValue = operationCompleted });
+                }
+                else
+                {
+
+                    List<UserPromotionPackagesDTO> packages = await System.Threading.Tasks.Task.Run(() => nearByMePromotionPacakge.GetUserPromotionPackages(operationCompleted.ToString()));
+
+                    return Request.CreateResponse(HttpStatusCode.OK, new { returnValue = packages });
+                }
 
             }
             catch (ApplicationException applicationException)
@@ -371,7 +390,7 @@ namespace PowerfulPal.Neeo.NearByMeApi.Controllers
                     return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ModelState);
                 }
 
-               bool operationCompleted = await System.Threading.Tasks.Task.Run(() => nearByMePromotionPacakge.DeleteNearByMeUserPromotionPackage(userPromotionsPackageID));
+               int operationCompleted = await System.Threading.Tasks.Task.Run(() => nearByMePromotionPacakge.DeleteNearByMeUserPromotionPackage(userPromotionsPackageID));
 
                    
                 return Request.CreateResponse(HttpStatusCode.OK, new { returnValue = operationCompleted });

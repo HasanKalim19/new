@@ -104,7 +104,7 @@ namespace DAL
         private const string ProneGetXMLChatBackup = "spne_neGetXMLChatBackup";
 
         //NearByMePromotionPackages
-
+        private const string ProcUpdateUserPromotionPackage = "spne_UpdateUserPromotionPackage";
         private const string ProcGetNearByMePromotionPackages = "spne_GetAllPromotionPackages";
         private const string ProcAddUserPromotionPackage = "spne_AddUserPromotionPackage";
         private const string ProcDeleteNearByMeUserPromotionPackage = "spne_DeleteNearByMeUserPromotionPackage";
@@ -2391,9 +2391,9 @@ namespace DAL
             }
         }
 
-        public async Task<int> AddUserPromotionPackage(int packageId, int promotionId,  short numberOfDays, string country)
+        public async Task<long> AddUserPromotionPackage(int packageId, int promotionId,  short numberOfDays, string country)
         {
-            int count = 0;
+            long count = 0;
             SqlCommand cmd = new SqlCommand();
             cmd.CommandText = ProcAddUserPromotionPackage;
             cmd.CommandType = CommandType.StoredProcedure;
@@ -2406,7 +2406,7 @@ namespace DAL
             try
             {
                 await _con.OpenAsync();
-                count = (int)await cmd.ExecuteScalarAsync();
+                count = (long)await cmd.ExecuteScalarAsync();
                 return count;
 
 
@@ -2430,18 +2430,20 @@ namespace DAL
 
         }
 
-        public async Task<bool> DeleteNearByMeUserPromotionPackage(int userPromotionsPackageID)
+        public async Task<int> DeleteNearByMeUserPromotionPackage(int userPromotionsPackageID)
         {
             SqlCommand cmd = new SqlCommand();
-            cmd.CommandText = ProcDeleteNearByMePromotion;
+            cmd.CommandText = ProcDeleteNearByMeUserPromotionPackage;
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Connection = _con;
             cmd.Parameters.Add("@userPromotionsPackageID", SqlDbType.Int).Value = userPromotionsPackageID;
             try
             {
                 await _con.OpenAsync();
-                await cmd.ExecuteNonQueryAsync();
-                return true;
+               int  delete = (int)await cmd.ExecuteScalarAsync();
+                return delete;
+
+
             }
             catch (SqlException sqlEx)
             {
@@ -2460,9 +2462,9 @@ namespace DAL
             }
         }
 
-        public async Task<double> GetUserBalance(string username)
+        public async Task<decimal> GetUserBalance(string username)
         {
-            double balance = 0;
+            decimal balance = 0;
             SqlCommand cmd = new SqlCommand();
             cmd.CommandText = ProcGetUserBalance;
             cmd.CommandType = CommandType.StoredProcedure;
@@ -2472,7 +2474,7 @@ namespace DAL
             try
             {
                 await _con.OpenAsync();
-                balance = (double)await cmd.ExecuteScalarAsync();
+                balance = (decimal)await cmd.ExecuteScalarAsync();
                 return balance;
             }
             catch (SqlException sqlEx)
@@ -2493,11 +2495,11 @@ namespace DAL
             }
         }
 
-        public async Task<int> UpdateUserPromotionPackage(int  userPromotionsPackageID , string countryIds)
+        public async Task<long> UpdateUserPromotionPackage(int  userPromotionsPackageID , string countryIds)
         {
             int count = 0;
             SqlCommand cmd = new SqlCommand();
-            cmd.CommandText = ProcAddUserPromotionPackage;
+            cmd.CommandText = ProcUpdateUserPromotionPackage;
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Connection = _con;
             cmd.Parameters.Add("@userPromotionsPackageID", SqlDbType.Int).Value = userPromotionsPackageID;
